@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'cad_produtos.dart'; // Importa a tela de cadastro
+import 'cad_produtos.dart';
 
 class TelaOpcoes extends StatelessWidget {
   const TelaOpcoes({super.key});
