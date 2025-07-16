@@ -34,11 +34,7 @@ class _CadProdutosState extends State<CadProdutos> {
       FirebaseFirestore firestore = FirebaseFirestore.instance;
 
       try {
-        await firestore
-            .collection('Produtos')
-            .doc('produto_tipo_x')
-            .collection('produtos_cadastrados')
-            .add({
+        await firestore.collection('Produtos').add({
           'Nome': nomeProduto,
           'Categoria': categoriaProduto,
           'Sub_categoria': subCategoriaProduto,

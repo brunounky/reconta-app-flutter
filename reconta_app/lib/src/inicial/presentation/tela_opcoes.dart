@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../cadastro/presentation/cad_produtos.dart';
+import '../../contagem/presentation/selection.dart';
 
 class TelaOpcoes extends StatelessWidget {
   const TelaOpcoes({super.key});
@@ -30,7 +31,6 @@ class TelaOpcoes extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              // Ação para a tela de configurações
             },
           ),
         ],
@@ -86,7 +86,6 @@ class TelaOpcoes extends StatelessWidget {
               leading: const Icon(Icons.settings_outlined),
               title: const Text('Configurações'),
               onTap: () {
-                // Navegar para configurações
                 Navigator.pop(context);
               },
             ),
@@ -95,7 +94,6 @@ class TelaOpcoes extends StatelessWidget {
               leading: const Icon(Icons.exit_to_app),
               title: const Text('Sair'),
               onTap: () {
-                // Lógica de logout
                 Navigator.pop(context);
               },
             ),
@@ -124,7 +122,11 @@ class TelaOpcoes extends StatelessWidget {
                         iconColor: corTextoPrimario,
                         textColor: corTextoPrimario,
                         onTap: () {
-                          // Navegar para a tela de Contagem
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const SelectionScreen()),
+                          );
                         },
                       ),
                       const SizedBox(height: 24),
@@ -136,7 +138,6 @@ class TelaOpcoes extends StatelessWidget {
                         iconColor: corTextoPrimario,
                         textColor: corTextoPrimario,
                         onTap: () {
-                          // Navegar para a tela de Relatórios
                         },
                       ),
                       const SizedBox(height: 24),
@@ -150,7 +151,8 @@ class TelaOpcoes extends StatelessWidget {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const CadProdutos()),
+                            MaterialPageRoute(
+                                builder: (context) => const CadProdutos()),
                           );
                         },
                       ),
@@ -184,7 +186,8 @@ class TelaOpcoes extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 32.0, horizontal: 16.0),
+          padding:
+              const EdgeInsets.symmetric(vertical: 32.0, horizontal: 16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
