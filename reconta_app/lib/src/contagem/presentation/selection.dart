@@ -1,42 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-class ContagemScreen extends StatelessWidget {
-  final String? categoria;
-  final String? subCategoria;
-
-  const ContagemScreen({
-    super.key,
-    required this.categoria,
-    required this.subCategoria,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tela de Contagem'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Filtros Recebidos:',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Text('Categoria: ${categoria ?? "Nenhuma"}'),
-            const SizedBox(height: 8),
-            Text('Sub-categoria: ${subCategoria ?? "Nenhuma"}'),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-
+import 'package:reconta_app/src/contagem/presentation/contagem.dart';
 class SelectionScreen extends StatefulWidget {
   const SelectionScreen({super.key});
 
@@ -112,6 +76,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
     setState(() {
       _selectedCategoria = newValue;
       _subCategorias = _dependentSubCategorias[_selectedCategoria] ?? [];
+      _subCategorias.sort();
       _selectedSubCategoria = null;
     });
   }
@@ -122,7 +87,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
         context,
         MaterialPageRoute(
           builder: (context) => ContagemScreen(
-            categoria: _selectedCategoria,
+            categoria: _selectedCategoria!,
             subCategoria: _selectedSubCategoria,
           ),
         ),
@@ -198,7 +163,6 @@ class _SelectionScreenState extends State<SelectionScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Dropdown para Sub-categoria
                       DropdownButtonFormField<String>(
                         value: _selectedSubCategoria,
                         hint: const Text('Selecione uma Sub-categoria'),
@@ -215,14 +179,12 @@ class _SelectionScreenState extends State<SelectionScreen> {
                           });
                         },
                         decoration: InputDecoration(
-                          labelText: 'Sub-categoria',
+                          labelText: 'Sub-categoria (Opcional)',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                           prefixIcon: const Icon(Icons.subdirectory_arrow_right_outlined),
                         ),
-                        // Desabilita se nenhuma categoria for selecionada
-                        disabledHint: const Text('Selecione uma categoria primeiro'),
                       ),
                       const SizedBox(height: 32),
                       
@@ -236,7 +198,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
                           ),
                         ),
                         child: const Text(
-                          'Filtrar',
+                          'Filtrar e Iniciar Contagem',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
