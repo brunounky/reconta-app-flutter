@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'cad_produtos.dart';
+import '../../cadastro/presentation/cad_produtos.dart';
 
 class TelaOpcoes extends StatelessWidget {
   const TelaOpcoes({super.key});
@@ -148,7 +148,6 @@ class TelaOpcoes extends StatelessWidget {
                         iconColor: corTextoPrimario,
                         textColor: corTextoPrimario,
                         onTap: () {
-                          // Navega para a tela de cadastro de produtos
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => const CadProdutos()),

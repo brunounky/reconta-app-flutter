@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "207684430040",
+    "project_id": "recontaapp",
+    "storage_bucket": "recontaapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:207684430040:android:71e3276baf5266257ccfad",
+        "android_client_info": {
+          "package_name": "com.example.reconta_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdM4A14dFrLzzrWjsb80AFUrUL3wD0fXA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
