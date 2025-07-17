@@ -20,7 +20,6 @@ class _CadProdutosState extends State<CadProdutos> {
   final _codigoReferenciaController = TextEditingController();
   final _nomeController = TextEditingController();
   final _categoriaController = TextEditingController();
-  final _subCategoriaController = TextEditingController();
   final _observacaoController = TextEditingController();
 
   int? _selectedPrioridade;
@@ -31,7 +30,6 @@ class _CadProdutosState extends State<CadProdutos> {
     _codigoReferenciaController.dispose();
     _nomeController.dispose();
     _categoriaController.dispose();
-    _subCategoriaController.dispose();
     _observacaoController.dispose();
     super.dispose();
   }
@@ -55,7 +53,6 @@ class _CadProdutosState extends State<CadProdutos> {
           'CodigoReferencia': _codigoReferenciaController.text,
           'Nome': _nomeController.text,
           'Categoria': _categoriaController.text,
-          'Sub_categoria': _subCategoriaController.text,
           'Observacoes': _observacaoController.text,
           'PrioridadeContagem': _selectedPrioridade,
           'timestamp': FieldValue.serverTimestamp(),
@@ -134,36 +131,16 @@ class _CadProdutosState extends State<CadProdutos> {
                         },
                       ),
                       const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildTextFormField(
-                              controller: _categoriaController,
-                              labelText: 'Categoria',
-                              icon: Icons.category_outlined,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Insira a categoria.';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildTextFormField(
-                              controller: _subCategoriaController,
-                              labelText: 'Sub-categoria',
-                              icon: Icons.subdirectory_arrow_right,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Insira a sub-categoria.';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                        ],
+                      _buildTextFormField(
+                        controller: _categoriaController,
+                        labelText: 'Categoria',
+                        icon: Icons.category_outlined,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Insira a categoria.';
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 24),
                       _buildSectionTitle('Prioridade de Contagem'),

@@ -18,12 +18,7 @@ class SelectionScreen extends StatefulWidget {
 
 class _SelectionScreenState extends State<SelectionScreen> {
   List<String> _categorias = [];
-  List<String> _subCategorias = [];
   String? _selectedCategoria;
-  String? _selectedSubCategoria;
-
-  final Map<String, List<String>> _dependentSubCategorias = {};
-
   bool _isLoading = true;
 
   @override
@@ -46,24 +41,11 @@ class _SelectionScreenState extends State<SelectionScreen> {
 
       if (snapshot.docs.isNotEmpty) {
         Set<String> categoriasUnicas = {};
-
         for (var doc in snapshot.docs) {
           final data = doc.data() as Map<String, dynamic>;
           final categoria = data['Categoria'] as String?;
-          final subCategoria = data['Sub_categoria'] as String?;
-
           if (categoria != null && categoria.isNotEmpty) {
             categoriasUnicas.add(categoria);
-
-            if (!_dependentSubCategorias.containsKey(categoria)) {
-              _dependentSubCategorias[categoria] = [];
-            }
-
-            if (subCategoria != null && subCategoria.isNotEmpty) {
-              if (!_dependentSubCategorias[categoria]!.contains(subCategoria)) {
-                _dependentSubCategorias[categoria]!.add(subCategoria);
-              }
-            }
           }
         }
 
@@ -87,15 +69,6 @@ class _SelectionScreenState extends State<SelectionScreen> {
     }
   }
 
-  void _onCategoriaChanged(String? newValue) {
-    setState(() {
-      _selectedCategoria = newValue;
-      _subCategorias = _dependentSubCategorias[_selectedCategoria] ?? [];
-      _subCategorias.sort();
-      _selectedSubCategoria = null;
-    });
-  }
-
   void _aplicarFiltro() {
     if (_selectedCategoria != null) {
       Navigator.push(
@@ -103,7 +76,6 @@ class _SelectionScreenState extends State<SelectionScreen> {
         MaterialPageRoute(
           builder: (context) => ContagemScreen(
             categoria: _selectedCategoria!,
-            subCategoria: _selectedSubCategoria,
             empresaId: widget.empresaId,
             subEmpresaId: widget.subEmpresaId,
           ),
@@ -111,7 +83,8 @@ class _SelectionScreenState extends State<SelectionScreen> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, selecione pelo menos uma categoria.')),
+        const SnackBar(
+            content: Text('Por favor, selecione pelo menos uma categoria.')),
       );
     }
   }
@@ -166,7 +139,11 @@ class _SelectionScreenState extends State<SelectionScreen> {
                             child: Text(categoria),
                           );
                         }).toList(),
-                        onChanged: _onCategoriaChanged,
+                        onChanged: (newValue) {
+                          setState(() {
+                            _selectedCategoria = newValue;
+                          });
+                        },
                         decoration: InputDecoration(
                           labelText: 'Categoria',
                           border: OutlineInputBorder(
@@ -176,31 +153,6 @@ class _SelectionScreenState extends State<SelectionScreen> {
                         ),
                         validator: (value) =>
                             value == null ? 'Campo obrigatório' : null,
-                      ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        value: _selectedSubCategoria,
-                        hint: const Text('Selecione uma Sub-categoria'),
-                        isExpanded: true,
-                        items: _subCategorias.map((String subCategoria) {
-                          return DropdownMenuItem<String>(
-                            value: subCategoria,
-                            child: Text(subCategoria),
-                          );
-                        }).toList(),
-                        onChanged: (newValue) {
-                          setState(() {
-                            _selectedSubCategoria = newValue;
-                          });
-                        },
-                        decoration: InputDecoration(
-                          labelText: 'Sub-categoria (Opcional)',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          prefixIcon:
-                              const Icon(Icons.subdirectory_arrow_right_outlined),
-                        ),
                       ),
                       const SizedBox(height: 32),
                       ElevatedButton(
