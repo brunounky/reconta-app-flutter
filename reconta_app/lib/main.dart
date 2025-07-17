@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart'; 
-import 'package:reconta_app/src/inicial/presentation/tela_opcoes.dart';
+import 'package:reconta_app/src/auth/presentation/auth_gate.dart';
+import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,7 +17,8 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: TelaOpcoes(),
+      debugShowCheckedModeBanner: false,
+      home: AuthGate(),
     );
   }
 }
