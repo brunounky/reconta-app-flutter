@@ -20,11 +20,15 @@ class Produto {
 class ContagemScreen extends StatefulWidget {
   final String categoria;
   final String? subCategoria;
+  final String empresaId;
+  final String? subEmpresaId;
 
   const ContagemScreen({
     super.key,
     required this.categoria,
     this.subCategoria,
+    required this.empresaId,
+    this.subEmpresaId,
   });
 
   @override
@@ -47,7 +51,12 @@ class _ContagemScreenState extends State<ContagemScreen> {
     try {
       Query query = FirebaseFirestore.instance
           .collection('Produtos')
+          .where('empresaId', isEqualTo: widget.empresaId)
           .where('Categoria', isEqualTo: widget.categoria);
+
+      if (widget.subEmpresaId != null) {
+        query = query.where('subEmpresaId', isEqualTo: widget.subEmpresaId);
+      }
 
       if (widget.subCategoria != null && widget.subCategoria!.isNotEmpty) {
         query = query.where('Sub_categoria', isEqualTo: widget.subCategoria);
@@ -199,6 +208,8 @@ class _ContagemScreenState extends State<ContagemScreen> {
                           await FirebaseFirestore.instance
                               .collection('Contagens')
                               .add({
+                            'empresaId': widget.empresaId,
+                            'subEmpresaId': widget.subEmpresaId,
                             'produtoId': produto.id,
                             'produtoNome': produto.nome,
                             'estoqueSistema': sistema,
@@ -340,8 +351,11 @@ class _ContagemScreenState extends State<ContagemScreen> {
                           ),
                         ),
                         trailing: Icon(
-                          isContado ? Icons.check_circle : Icons.arrow_forward_ios,
-                          color: isContado ? Colors.green : Colors.grey.shade400,
+                          isContado
+                              ? Icons.check_circle
+                              : Icons.arrow_forward_ios,
+                          color:
+                              isContado ? Colors.green : Colors.grey.shade400,
                           size: 20,
                         ),
                         onTap: () => _showContagemPopup(produto),

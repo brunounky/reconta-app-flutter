@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:reconta_app/src/auth/presentation/auth_service.dart';
 import 'package:reconta_app/src/auth/presentation/login_screen.dart';
-import 'package:reconta_app/src/inicial/presentation/tela_opcoes.dart';
+import 'package:reconta_app/src/empresa/presentation/selecao_empresa_screen.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
@@ -16,7 +16,7 @@ class AuthGate extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasData) {
-          return const TelaOpcoes();
+          return const SelecaoEmpresaScreen();
         }
         return const LoginScreen();
       },

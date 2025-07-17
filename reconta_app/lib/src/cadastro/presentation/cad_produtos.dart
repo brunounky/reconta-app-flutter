@@ -2,7 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CadProdutos extends StatefulWidget {
-  const CadProdutos({super.key});
+  final String empresaId;
+  final String? subEmpresaId;
+
+  const CadProdutos({
+    super.key,
+    required this.empresaId,
+    this.subEmpresaId,
+  });
 
   @override
   State<CadProdutos> createState() => _CadProdutosState();
@@ -43,6 +50,8 @@ class _CadProdutosState extends State<CadProdutos> {
 
       try {
         await FirebaseFirestore.instance.collection('Produtos').add({
+          'empresaId': widget.empresaId,
+          'subEmpresaId': widget.subEmpresaId,
           'CodigoReferencia': _codigoReferenciaController.text,
           'Nome': _nomeController.text,
           'Categoria': _categoriaController.text,
@@ -102,7 +111,8 @@ class _CadProdutosState extends State<CadProdutos> {
             children: [
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -145,6 +155,12 @@ class _CadProdutosState extends State<CadProdutos> {
                               controller: _subCategoriaController,
                               labelText: 'Sub-categoria',
                               icon: Icons.subdirectory_arrow_right,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Insira a sub-categoria.';
+                                }
+                                return null;
+                              },
                             ),
                           ),
                         ],
@@ -168,7 +184,8 @@ class _CadProdutosState extends State<CadProdutos> {
                 child: ElevatedButton.icon(
                   onPressed: _salvarProduto,
                   icon: const Icon(Icons.save_alt_rounded, color: Colors.white),
-                  label: const Text('Salvar Produto', style: TextStyle(color: Colors.white)),
+                  label: const Text('Salvar Produto',
+                      style: TextStyle(color: Colors.white)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: corPrimaria,
                     minimumSize: const Size(double.infinity, 50),
@@ -188,7 +205,7 @@ class _CadProdutosState extends State<CadProdutos> {
       ),
     );
   }
-  
+
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
@@ -229,7 +246,8 @@ class _CadProdutosState extends State<CadProdutos> {
         ),
         filled: true,
         fillColor: Colors.grey.shade50,
-        contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
       ),
       validator: validator,
       maxLines: maxLines,

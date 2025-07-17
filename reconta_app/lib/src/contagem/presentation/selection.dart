@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:reconta_app/src/contagem/presentation/contagem.dart';
+
 class SelectionScreen extends StatefulWidget {
-  const SelectionScreen({super.key});
+  final String empresaId;
+  final String? subEmpresaId;
+
+  const SelectionScreen({
+    super.key,
+    required this.empresaId,
+    this.subEmpresaId,
+  });
 
   @override
   State<SelectionScreen> createState() => _SelectionScreenState();
@@ -26,12 +34,19 @@ class _SelectionScreenState extends State<SelectionScreen> {
 
   Future<void> _fetchFiltros() async {
     try {
-      QuerySnapshot snapshot =
-          await FirebaseFirestore.instance.collection('Produtos').get();
+      Query query = FirebaseFirestore.instance
+          .collection('Produtos')
+          .where('empresaId', isEqualTo: widget.empresaId);
+
+      if (widget.subEmpresaId != null) {
+        query = query.where('subEmpresaId', isEqualTo: widget.subEmpresaId);
+      }
+
+      QuerySnapshot snapshot = await query.get();
 
       if (snapshot.docs.isNotEmpty) {
         Set<String> categoriasUnicas = {};
-        
+
         for (var doc in snapshot.docs) {
           final data = doc.data() as Map<String, dynamic>;
           final categoria = data['Categoria'] as String?;
@@ -45,19 +60,19 @@ class _SelectionScreenState extends State<SelectionScreen> {
             }
 
             if (subCategoria != null && subCategoria.isNotEmpty) {
-               if (!_dependentSubCategorias[categoria]!.contains(subCategoria)) {
-                 _dependentSubCategorias[categoria]!.add(subCategoria);
-               }
+              if (!_dependentSubCategorias[categoria]!.contains(subCategoria)) {
+                _dependentSubCategorias[categoria]!.add(subCategoria);
+              }
             }
           }
         }
-        
+
         setState(() {
           _categorias = categoriasUnicas.toList()..sort();
           _isLoading = false;
         });
       } else {
-         setState(() {
+        setState(() {
           _isLoading = false;
         });
       }
@@ -89,6 +104,8 @@ class _SelectionScreenState extends State<SelectionScreen> {
           builder: (context) => ContagemScreen(
             categoria: _selectedCategoria!,
             subCategoria: _selectedSubCategoria,
+            empresaId: widget.empresaId,
+            subEmpresaId: widget.subEmpresaId,
           ),
         ),
       );
@@ -98,7 +115,6 @@ class _SelectionScreenState extends State<SelectionScreen> {
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +156,6 @@ class _SelectionScreenState extends State<SelectionScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      
                       DropdownButtonFormField<String>(
                         value: _selectedCategoria,
                         hint: const Text('Selecione uma Categoria'),
@@ -159,10 +174,10 @@ class _SelectionScreenState extends State<SelectionScreen> {
                           ),
                           prefixIcon: const Icon(Icons.category_outlined),
                         ),
-                        validator: (value) => value == null ? 'Campo obrigatório' : null,
+                        validator: (value) =>
+                            value == null ? 'Campo obrigatório' : null,
                       ),
                       const SizedBox(height: 16),
-
                       DropdownButtonFormField<String>(
                         value: _selectedSubCategoria,
                         hint: const Text('Selecione uma Sub-categoria'),
@@ -183,11 +198,11 @@ class _SelectionScreenState extends State<SelectionScreen> {
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          prefixIcon: const Icon(Icons.subdirectory_arrow_right_outlined),
+                          prefixIcon:
+                              const Icon(Icons.subdirectory_arrow_right_outlined),
                         ),
                       ),
                       const SizedBox(height: 32),
-                      
                       ElevatedButton(
                         onPressed: _aplicarFiltro,
                         style: ElevatedButton.styleFrom(

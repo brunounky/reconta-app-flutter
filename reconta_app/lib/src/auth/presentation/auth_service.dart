@@ -42,7 +42,7 @@ class AuthService {
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       print(e.message);
-      throw e;
+      rethrow;
     }
   }
 
@@ -57,7 +57,7 @@ class AuthService {
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       print(e.message);
-      throw e;
+      rethrow;
     }
   }
 

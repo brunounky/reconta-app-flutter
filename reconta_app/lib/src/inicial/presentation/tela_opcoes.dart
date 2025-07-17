@@ -3,7 +3,14 @@ import '../../cadastro/presentation/cad_produtos.dart';
 import '../../contagem/presentation/selection.dart';
 
 class TelaOpcoes extends StatelessWidget {
-  const TelaOpcoes({super.key});
+  final String empresaId;
+  final String? subEmpresaId;
+
+  const TelaOpcoes({
+    super.key,
+    required this.empresaId,
+    this.subEmpresaId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +37,7 @@ class TelaOpcoes extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: () {
-            },
+            onPressed: () {},
           ),
         ],
       ),
@@ -125,7 +131,11 @@ class TelaOpcoes extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const SelectionScreen()),
+                              builder: (context) => SelectionScreen(
+                                empresaId: empresaId,
+                                subEmpresaId: subEmpresaId,
+                              ),
+                            ),
                           );
                         },
                       ),
@@ -137,8 +147,7 @@ class TelaOpcoes extends StatelessWidget {
                         color: corCard,
                         iconColor: corTextoPrimario,
                         textColor: corTextoPrimario,
-                        onTap: () {
-                        },
+                        onTap: () {},
                       ),
                       const SizedBox(height: 24),
                       _buildDashboardCard(
@@ -152,7 +161,11 @@ class TelaOpcoes extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const CadProdutos()),
+                              builder: (context) => CadProdutos(
+                                empresaId: empresaId,
+                                subEmpresaId: subEmpresaId,
+                              ),
+                            ),
                           );
                         },
                       ),
