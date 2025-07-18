@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:reconta_app/src/auth/presentation/auth_service.dart';
 import '../../cadastro/presentation/cad_produtos.dart';
 import '../../contagem/presentation/selection.dart';
+import '../../relatorios/presentation/relatorios_screen.dart';
 
 class TelaOpcoes extends StatelessWidget {
   final String empresaId;
@@ -100,6 +102,7 @@ class TelaOpcoes extends StatelessWidget {
               leading: const Icon(Icons.exit_to_app),
               title: const Text('Sair'),
               onTap: () {
+                AuthService().signOut();
                 Navigator.pop(context);
               },
             ),
@@ -107,74 +110,83 @@ class TelaOpcoes extends StatelessWidget {
         ),
       ),
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints viewportConstraints) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: viewportConstraints.maxHeight,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _buildDashboardCard(
-                        context: context,
-                        icon: Icons.timer_outlined,
-                        title: 'Contagem',
-                        color: corCard,
-                        iconColor: corTextoPrimario,
-                        textColor: corTextoPrimario,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SelectionScreen(
-                                empresaId: empresaId,
-                                subEmpresaId: subEmpresaId,
-                              ),
-                            ),
-                          );
-                        },
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: GridView.count(
+            crossAxisCount: 2,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            childAspectRatio: 1.0,
+            children: [
+              _buildDashboardCard(
+                context: context,
+                icon: Icons.timer_outlined,
+                title: 'Contagem',
+                color: corCard,
+                iconColor: corTextoPrimario,
+                textColor: corTextoPrimario,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SelectionScreen(
+                        empresaId: empresaId,
+                        subEmpresaId: subEmpresaId,
                       ),
-                      const SizedBox(height: 24),
-                      _buildDashboardCard(
-                        context: context,
-                        icon: Icons.analytics_outlined,
-                        title: 'Relatórios',
-                        color: corCard,
-                        iconColor: corTextoPrimario,
-                        textColor: corTextoPrimario,
-                        onTap: () {},
-                      ),
-                      const SizedBox(height: 24),
-                      _buildDashboardCard(
-                        context: context,
-                        icon: Icons.app_registration,
-                        title: 'Cadastros',
-                        color: corCard,
-                        iconColor: corTextoPrimario,
-                        textColor: corTextoPrimario,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CadProdutos(
-                                empresaId: empresaId,
-                                subEmpresaId: subEmpresaId,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               ),
-            );
-          },
+              _buildDashboardCard(
+                context: context,
+                icon: Icons.analytics_outlined,
+                title: 'Relatórios',
+                color: corCard,
+                iconColor: corTextoPrimario,
+                textColor: corTextoPrimario,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RelatorioScreen(
+                        empresaId: empresaId,
+                        subEmpresaId: subEmpresaId,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              _buildDashboardCard(
+                context: context,
+                icon: Icons.app_registration,
+                title: 'Cadastros',
+                color: corCard,
+                iconColor: corTextoPrimario,
+                textColor: corTextoPrimario,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CadProdutos(
+                        empresaId: empresaId,
+                        subEmpresaId: subEmpresaId,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              _buildDashboardCard(
+                context: context,
+                icon: Icons.calendar_month_outlined,
+                title: 'Agenda de Contagem',
+                color: corCard,
+                iconColor: corTextoPrimario,
+                textColor: corTextoPrimario,
+                onTap: () {
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -199,18 +211,19 @@ class TelaOpcoes extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding:
-              const EdgeInsets.symmetric(vertical: 32.0, horizontal: 16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Icon(icon, size: 50, color: iconColor),
               const SizedBox(height: 16),
               Text(
                 title,
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   color: textColor,
-                  fontSize: 20,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
