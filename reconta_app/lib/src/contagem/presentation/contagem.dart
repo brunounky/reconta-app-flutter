@@ -1,5 +1,3 @@
-// lib/src/contagem/presentation/contagem.dart
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
@@ -8,14 +6,16 @@ import 'package:math_expressions/math_expressions.dart';
 class Produto {
   final String id;
   final String nome;
+  final String codigoReferencia;
 
-  Produto({required this.id, required this.nome});
+  Produto({required this.id, required this.nome, required this.codigoReferencia});
 
   factory Produto.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return Produto(
       id: doc.id,
       nome: data['Nome'] ?? '',
+      codigoReferencia: (data['CodigoReferencia'] ?? 'N/A').toString(),
     );
   }
 }
@@ -60,7 +60,8 @@ class _ContagemScreenState extends State<ContagemScreen> {
     final query = _searchController.text.toLowerCase();
     setState(() {
       _filteredProdutos = _produtos.where((produto) {
-        return produto.nome.toLowerCase().contains(query);
+        return produto.nome.toLowerCase().contains(query) ||
+               produto.codigoReferencia.toLowerCase().contains(query);
       }).toList();
     });
   }
@@ -101,6 +102,7 @@ class _ContagemScreenState extends State<ContagemScreen> {
   void _showContagemPopup(Produto produto) {
     final sistemaController = TextEditingController();
     final fisicoController = TextEditingController();
+    final observacaoController = TextEditingController();
     final diferencaNotifier = ValueNotifier(0);
     final formKey = GlobalKey<FormState>();
 
@@ -129,134 +131,145 @@ class _ContagemScreenState extends State<ContagemScreen> {
             ),
             child: Form(
               key: formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    produto.nome,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF0D47A1),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      produto.nome,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF0D47A1),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 24.0),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildTextField(
-                          controller: sistemaController,
-                          labelText: 'Estoque Sistema',
-                          isExpression: false,
+                    const SizedBox(height: 24.0),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextField(
+                            controller: sistemaController,
+                            labelText: 'Estoque Sistema',
+                            isExpression: false,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildTextField(
-                          controller: fisicoController,
-                          labelText: 'Qtd. Físico (ex: 5*12+3)',
-                          isExpression: true,
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildTextField(
+                            controller: fisicoController,
+                            labelText: 'Qtd. Físico (ex: 5*12+3)',
+                            isExpression: true,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20.0),
-                  ValueListenableBuilder<int>(
-                    valueListenable: diferencaNotifier,
-                    builder: (context, diferenca, child) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 12.0, horizontal: 16.0),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF5F5F5),
-                          borderRadius: BorderRadius.circular(12.0),
-                          border: Border.all(color: Colors.grey.shade300),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Diferença:',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                            ),
-                            Text(
-                              '$diferenca',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: diferenca == 0
-                                    ? Colors.green
-                                    : (diferenca > 0 ? Colors.blue : Colors.red),
+                      ],
+                    ),
+                    const SizedBox(height: 16.0),
+                    _buildTextField(
+                      controller: observacaoController,
+                      labelText: 'Observações (opcional)',
+                      isExpression: false,
+                      maxLines: 2,
+                    ),
+                    const SizedBox(height: 20.0),
+                    ValueListenableBuilder<int>(
+                      valueListenable: diferencaNotifier,
+                      builder: (context, diferenca, child) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 12.0, horizontal: 16.0),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF5F5F5),
+                            borderRadius: BorderRadius.circular(12.0),
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Diferença:',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 24.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('CANCELAR', style: TextStyle(color: Colors.grey)),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: () async {
-                          if (!formKey.currentState!.validate()) return;
-                          
-                          final sistema = int.tryParse(sistemaController.text) ?? 0;
-                          final fisico = _evaluateExpression(fisicoController.text);
-                          final diferenca = fisico - sistema;
-
-                          try {
-                            await FirebaseFirestore.instance.collection('Contagens').add({
-                              'empresaId': widget.empresaId,
-                              'subEmpresaId': widget.subEmpresaId,
-                              'produtoId': produto.id,
-                              'produtoNome': produto.nome,
-                              'estoqueSistema': sistema,
-                              'quantidadeFisico': fisico,
-                              'diferenca': diferenca,
-                              'dataContagem': FieldValue.serverTimestamp(),
-                            });
-
-                            if (mounted) {
-                              setState(() => _produtosContados.add(produto.id));
-                              Navigator.of(context).pop();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Contagem registrada com sucesso!'),
-                                  backgroundColor: Colors.green,
+                              Text(
+                                '$diferenca',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: diferenca == 0
+                                      ? Colors.green
+                                      : (diferenca > 0 ? Colors.blue : Colors.red),
                                 ),
-                              );
-                            }
-                          } catch (e) {
-                            if (mounted) {
-                              Navigator.of(context).pop();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Erro ao registrar: $e'),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            }
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0D47A1),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 24.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('CANCELAR', style: TextStyle(color: Colors.grey)),
                         ),
-                        child: const Text('REGISTRAR'),
-                      ),
-                    ],
-                  ),
-                ],
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: () async {
+                            if (!formKey.currentState!.validate()) return;
+                            
+                            final sistema = int.tryParse(sistemaController.text) ?? 0;
+                            final fisico = _evaluateExpression(fisicoController.text);
+                            final diferenca = fisico - sistema;
+                            final observacao = observacaoController.text;
+
+                            try {
+                              await FirebaseFirestore.instance.collection('Contagens').add({
+                                'empresaId': widget.empresaId,
+                                'subEmpresaId': widget.subEmpresaId,
+                                'produtoId': produto.id,
+                                'produtoNome': produto.nome,
+                                'estoqueSistema': sistema,
+                                'quantidadeFisico': fisico,
+                                'diferenca': diferenca,
+                                'observacoes': observacao,
+                                'dataContagem': FieldValue.serverTimestamp(),
+                              });
+
+                              if (mounted) {
+                                setState(() => _produtosContados.add(produto.id));
+                                Navigator.of(context).pop();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Contagem registrada com sucesso!'),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              if (mounted) {
+                                Navigator.of(context).pop();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Erro ao registrar: $e'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF0D47A1),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          ),
+                          child: const Text('REGISTRAR'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -266,13 +279,13 @@ class _ContagemScreenState extends State<ContagemScreen> {
       sistemaController.dispose();
       fisicoController.dispose();
       diferencaNotifier.dispose();
+      observacaoController.dispose();
     });
   }
-
+  
   int _evaluateExpression(String expression) {
     if (expression.isEmpty) return 0;
     try {
-      // Remove caracteres não permitidos para segurança
       expression = expression.replaceAll(RegExp(r'[^0-9\+\-\*\/\.\(\)]'), '');
       Parser p = Parser();
       Expression exp = p.parse(expression);
@@ -283,16 +296,17 @@ class _ContagemScreenState extends State<ContagemScreen> {
       return 0;
     }
   }
-
+  
   Widget _buildTextField({
     required TextEditingController controller,
     required String labelText,
     required bool isExpression,
+    int maxLines = 1,
   }) {
     return TextFormField(
       controller: controller,
-      keyboardType: isExpression ? TextInputType.text : TextInputType.number,
-      inputFormatters: isExpression ? [] : [FilteringTextInputFormatter.digitsOnly],
+      keyboardType: isExpression ? TextInputType.text : const TextInputType.numberWithOptions(decimal: true),
+      inputFormatters: isExpression ? [] : [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
       textAlign: TextAlign.center,
       style: const TextStyle(fontSize: 18),
       decoration: InputDecoration(
@@ -310,6 +324,7 @@ class _ContagemScreenState extends State<ContagemScreen> {
         }
         return null;
       },
+      maxLines: maxLines,
     );
   }
 
@@ -335,7 +350,7 @@ class _ContagemScreenState extends State<ContagemScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                labelText: 'Buscar Produto por Nome',
+                labelText: 'Buscar Produto por Nome ou Referência',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
               ),
@@ -373,13 +388,26 @@ class _ContagemScreenState extends State<ContagemScreen> {
                             ),
                             child: ListTile(
                               contentPadding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                              title: Text(
-                                produto.nome,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: isContado ? Colors.grey.shade600 : Colors.black87,
-                                ),
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    produto.nome,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: isContado ? Colors.grey.shade600 : Colors.black87,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Ref: ${produto.codigoReferencia}',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade500,
+                                    ),
+                                  ),
+                                ],
                               ),
                               trailing: Icon(
                                 isContado ? Icons.check_circle : Icons.arrow_forward_ios,

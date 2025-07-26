@@ -119,7 +119,6 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
         }
       }
 
-
       setState(() {
         _reportData = filteredReport;
       });
@@ -143,7 +142,6 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
       final productSnapshot = await productQuery.get();
       return productSnapshot.docs.map((doc) => doc.id).toSet();
   }
-
 
   @override
   Widget build(BuildContext context) {
